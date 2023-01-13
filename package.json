@@ -1,0 +1,31 @@
+{
+  "name": "auth-provider",
+  "version": "0.0.0",
+  "description": "Provides HTTP(S) endpoints for user authentication with JWT.",
+  "author": "Jonas Musall",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonasmusall/auth-provider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonasmusall/auth-provider/issues"
+  },
+  "homepage": "https://github.com/jonasmusall/auth-provider#readme",
+  "main": "main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build-watch": "tsc -w -p tsconfig.json",
+    "dev": "nodemon out/main.js",
+    "start": "node out/main.js"
+  },
+  "devDependencies": {
+    "@types/cookie": "^0.5.1",
+    "@types/node": "^18.11.18",
+    "nodemon": "^2.0.20",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "fastify": "^4.11.0"
+  }
+}

@@ -58,4 +58,4 @@ app.get('/publickey', async (request, reply) => {
 app.listen({ port: PORT }, (err, addr) => {
   if (err) throw err;
   console.log(`Listening on ${addr}`);
-})
+});

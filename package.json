@@ -12,7 +12,8 @@
     "url": "https://github.com/jonasmusall/auth-provider/issues"
   },
   "homepage": "https://github.com/jonasmusall/auth-provider#readme",
-  "main": "main.js",
+  "main": "out/main.js",
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build-watch": "tsc -w -p tsconfig.json",

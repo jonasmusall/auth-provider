@@ -45,3 +45,7 @@ export const putPasswordSchema = {
     newPassword: { type: 'string' }
   }
 }
+
+export interface INameUrl {
+  name: string
+}

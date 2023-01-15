@@ -1,7 +1,7 @@
 {
   "name": "auth-provider",
   "version": "0.0.0",
-  "description": "Provides HTTP(S) endpoints for user authentication with JWT.",
+  "description": "Provides a REST API for user authentication with JWT.",
   "author": "Jonas Musall",
   "license": "MIT",
   "repository": {

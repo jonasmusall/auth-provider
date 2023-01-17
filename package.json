@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build-watch": "tsc -w -p tsconfig.json",
+    "prisma-reset": "prisma migrate reset -f",
     "dev": "nodemon out/main.js",
     "start": "node out/main.js"
   },

@@ -42,7 +42,7 @@ app.put<{
   }
 );
 
-app.get<{
+app.post<{
   Body: schemas.IGetToken,
   Params: schemas.INameUrl
 }>(

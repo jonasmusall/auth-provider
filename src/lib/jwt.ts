@@ -1,4 +1,6 @@
-import * as _jwt from 'jsonwebtoken';
+import jsonwebtoken from 'jsonwebtoken';
+import type { JwtPayload } from 'jsonwebtoken';
+const { sign: _sign } = jsonwebtoken;
 
 // promisification of jsonwebtoken.sign
 /**
@@ -7,9 +9,9 @@ import * as _jwt from 'jsonwebtoken';
  * @param privateKey PEM encoded private RSA key.
  * @returns The JWT string.
  */
-export function sign(payload: _jwt.JwtPayload, privateKey: string): Promise<string> {
+export function sign(payload: JwtPayload, privateKey: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    _jwt.sign(payload, privateKey, { algorithm: 'RS256' }, (err, token) => {
+    _sign(payload, privateKey, { algorithm: 'RS256' }, (err, token) => {
       if (err !== null) {
         reject(err);
         return;

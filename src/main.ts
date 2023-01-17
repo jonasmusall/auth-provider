@@ -1,11 +1,24 @@
 import fastify, { FastifyInstance } from 'fastify';
+import { readFile, stat } from 'fs/promises';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { sign } from './lib/jwt.js';
 import * as schemas from './schemas.js';
 
 const PORT = 8888;
+const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 const app: FastifyInstance = fastify();
 
-// TODO: RSA keypair
+const privateKeyPath = resolve(PROJECT_ROOT, 'certs', 'private.pem');
+const publicKeyPath = resolve(PROJECT_ROOT, 'certs', 'public.pem');
+if (!(await stat(privateKeyPath)).isFile || !(await stat(publicKeyPath)).isFile) {
+  console.error(`private or public key file missing in ${resolve(PROJECT_ROOT, 'certs')}`);
+  process.exit(1);
+}
+const privateKey = await readFile(privateKeyPath, { encoding: 'utf8' });
+const publicKey = await readFile(publicKeyPath, { encoding: 'utf8' });
+
 // TODO: database
 
 app.post<{
@@ -37,6 +50,15 @@ app.get<{
   { schema: { body: schemas.getTokenSchema } },
   async (request, reply) => {
     // TODO: check password, create and send JWT
+    
+    // dummy JWT
+    const jwt = await sign({
+      sub: request.params.name
+    }, privateKey);
+    reply.send({
+      token: jwt,
+      expiresAt: 0
+    });
   }
 );
 
@@ -52,7 +74,9 @@ app.put<{
 );
 
 app.get('/publickey', async (request, reply) => {
-  // TODO: send RSA public key
+  reply.send({
+    publicKey: publicKey
+  });
 });
 
 app.listen({ port: PORT }, (err, addr) => {

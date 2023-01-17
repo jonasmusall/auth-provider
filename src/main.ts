@@ -10,14 +10,22 @@ const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 const app: FastifyInstance = fastify();
 
-const privateKeyPath = resolve(PROJECT_ROOT, 'certs', 'private.pem');
-const publicKeyPath = resolve(PROJECT_ROOT, 'certs', 'public.pem');
-if (!(await stat(privateKeyPath)).isFile || !(await stat(publicKeyPath)).isFile) {
-  console.error(`private or public key file missing in ${resolve(PROJECT_ROOT, 'certs')}`);
+const privateJwtKeyPath = resolve(PROJECT_ROOT, 'certs', 'jwt', 'private.pem');
+const publicJwtKeyPath = resolve(PROJECT_ROOT, 'certs', 'jwt', 'public.pem');
+let jwtKeyFilesCheck = false;
+try {
+  jwtKeyFilesCheck = (await stat(privateJwtKeyPath)).isFile() && (await stat(publicJwtKeyPath)).isFile();
+} catch (error: any) {
+  if ('ENOENT' != error?.code) {
+    throw error;
+  }
+}
+if (!jwtKeyFilesCheck) {
+  console.error(`private or public key file for JWT signing missing in ${resolve(PROJECT_ROOT, 'certs', 'jwt')}`);
   process.exit(1);
 }
-const privateKey = await readFile(privateKeyPath, { encoding: 'utf8' });
-const publicKey = await readFile(publicKeyPath, { encoding: 'utf8' });
+const privateJwtKey = await readFile(privateJwtKeyPath, { encoding: 'utf8' });
+const publicJwtKey = await readFile(publicJwtKeyPath, { encoding: 'utf8' });
 
 // TODO: database
 
@@ -54,7 +62,7 @@ app.post<{
     // dummy JWT
     const jwt = await sign({
       sub: request.params.name
-    }, privateKey);
+    }, privateJwtKey);
     reply.send({
       token: jwt,
       expiresAt: 0
@@ -75,7 +83,7 @@ app.put<{
 
 app.get('/publickey', async (request, reply) => {
   reply.send({
-    publicKey: publicKey
+    publicKey: publicJwtKey
   });
 });
 

@@ -58,6 +58,13 @@ app.post<{
   { schema: { body: schemas.getTokenSchema } },
   async (request, reply) => {
     // TODO: check password, create and send JWT
+    if (request.params.name !== 'test' || request.body.password !== '1234') {
+      reply.code(404);
+      reply.send({
+        reason: 'User not found or password incorrect'
+      });
+      return;
+    }
     
     // dummy JWT
     const jwt = await sign({

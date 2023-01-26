@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { sign } from './lib/jwt.js';
 import * as schemas from './schemas.js';
 
-const PORT = 8888;
+const PORT = 8889;
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 const app: FastifyInstance = fastify();

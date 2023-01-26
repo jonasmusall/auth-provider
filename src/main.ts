@@ -65,7 +65,8 @@ app.post<{
     }, privateJwtKey);
     reply.send({
       token: jwt,
-      expiresAt: 0
+      expiresAt: Date.now() + 3600,
+      maxAge: 3600
     });
   }
 );

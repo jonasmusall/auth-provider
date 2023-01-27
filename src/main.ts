@@ -6,6 +6,7 @@ import { sign } from './lib/jwt.js';
 import * as schemas from './schemas.js';
 
 const PORT = 8889;
+const HOST = '0.0.0.0';
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 const app: FastifyInstance = fastify();
@@ -95,7 +96,7 @@ app.get('/publickey', async (request, reply) => {
   });
 });
 
-app.listen({ port: PORT }, (err, addr) => {
+app.listen({ port: PORT, host: HOST }, (err, addr) => {
   if (err) throw err;
   console.log(`Listening on ${addr}`);
 });

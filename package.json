@@ -32,5 +32,13 @@
     "@prisma/client": "^4.8.1",
     "fastify": "^4.11.0",
     "jsonwebtoken": "^9.0.0"
-  }
+  },
+  "bundleDependencies": [
+    "@prisma/client",
+    "fastify",
+    "jsonwebtoken"
+  ],
+  "files": [
+    "out"
+  ]
 }

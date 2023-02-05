@@ -1,3 +1,6 @@
 certs
+docker
 !node_modules
 out
+prisma
+scripts

@@ -2,6 +2,10 @@
 
 Provides a REST API for user authentication with JWT.
 
+**ToDo**
+- Implement user deletion endpoint
+- Figure out way to containerize Prisma migrations
+
 ## REST API reference
 
 ### POST /user/${name}

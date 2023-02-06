@@ -1,3 +1,5 @@
+import { PrismaClient } from '@prisma/client';
+import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import fastify, { FastifyInstance } from 'fastify';
 import { readFile, stat } from 'fs/promises';
 import { resolve } from 'path';
@@ -7,9 +9,13 @@ import * as schemas from './schemas.js';
 
 const PORT = 8889;
 const HOST = '0.0.0.0';
+const TOKEN_LIFETIME = 60; // in seconds
+const SALT_LENGTH = 16;
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 const app: FastifyInstance = fastify();
+
+const db = new PrismaClient();
 
 const { privateJwtKey, publicJwtKey } = await getJwtKeypair();
 if (privateJwtKey === undefined) {
@@ -45,23 +51,41 @@ app.post<{
   '/user/:name/token',
   { schema: { body: schemas.getTokenSchema } },
   async (request, reply) => {
-    // TODO: check password, create and send JWT
-    if (request.params.name !== 'test' || request.body.password !== '1234') {
+    // search user in database
+    const user = await db.user.findUnique({
+      where: {
+        name: request.params.name
+      }
+    });
+
+    // reply 404 if user does not exist
+    if (user === null) {
       reply.code(404);
       reply.send({
         reason: 'User not found or password incorrect'
       });
       return;
     }
-    
-    // dummy JWT
+
+    // calculate hash from input password and compare to stored hash
+    // reply 404 if hashes (passwords) do not match
+    const hash = getPasswordHash(request.body.password, user.salt);
+    if (!timingSafeEqual(hash, user.hash)) {
+      reply.code(404);
+      reply.send({
+        reason: 'User not found or password incorrect'
+      });
+      return;
+    }
+
+    // user authentication successful, reply with new JWT
     const jwt = await sign({
       sub: request.params.name
     }, privateJwtKey);
     reply.send({
       token: jwt,
-      expiresAt: Date.now() + 3600,
-      maxAge: 3600
+      expiresAt: Date.now() + TOKEN_LIFETIME,
+      maxAge: TOKEN_LIFETIME
     });
   }
 );
@@ -101,6 +125,21 @@ async function getJwtKeypair(): Promise<{ privateJwtKey?: string, publicJwtKey?:
     privateJwtKey: await readFile(privateJwtKeyPath, { encoding: 'utf8' }),
     publicJwtKey: await readFile(publicJwtKeyPath, { encoding: 'utf8' })
   };
+}
+
+function getPasswordHash(password: string, salt: Buffer): Buffer {
+  return sha256Hash(Buffer.concat([
+    Buffer.from(password, 'utf8'),
+    salt
+  ]));
+}
+
+function generateSalt(): Buffer {
+  return randomBytes(SALT_LENGTH);
+}
+
+function sha256Hash(input: Buffer): Buffer {
+  return createHash('sha256').update(input).digest();
 }
 
 app.listen({ port: PORT, host: HOST }, (err, addr) => {

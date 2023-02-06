@@ -15,6 +15,10 @@ const TOKEN_LIFETIME = 60; // in seconds
 const SALT_LENGTH = 16;
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
+
+
+/* -------- initialization -------- */
+
 const app: FastifyInstance = fastify();
 
 const db = new PrismaClient();
@@ -24,6 +28,10 @@ if (privateJwtKey === undefined) {
   console.error(`private or public key file for JWT signing missing in ${resolve(PROJECT_ROOT, 'certs', 'jwt')}`);
   process.exit(1);
 }
+
+
+
+/* -------- POST /user/${name} -------- */
 
 app.post<{
   Body: schemas.IPasswordBody,
@@ -76,6 +84,10 @@ app.post<{
   }
 );
 
+
+
+/* -------- POST /user/${name}/token -------- */
+
 app.post<{
   Body: schemas.IPasswordBody,
   Params: schemas.INameUri
@@ -125,6 +137,10 @@ app.post<{
     });
   }
 );
+
+
+
+/* -------- PUT /user/${name}/password -------- */
 
 app.put<{
   Body: schemas.IUpdatePasswordBody,
@@ -181,6 +197,16 @@ app.put<{
   }
 );
 
+
+
+/* -------- DELETE /user/${name} -------- */
+
+// TODO: implement user deletion
+
+
+
+/* -------- GET /publickey -------- */
+
 app.get('/publickey', async (request, reply) => {
   reply.send({
     publicKey: publicJwtKey
@@ -207,6 +233,10 @@ async function getJwtKeypair(): Promise<{ privateJwtKey?: string, publicJwtKey?:
   };
 }
 
+
+
+/* -------- helper functions -------- */
+
 function getPasswordHash(password: string, salt: Buffer): Buffer {
   return sha256Hash(Buffer.concat([
     Buffer.from(password, 'utf8'),
@@ -225,6 +255,10 @@ function sha256Hash(input: Buffer): Buffer {
 function nowSeconds(): number {
   return Math.floor(Date.now() / 1000);
 }
+
+
+
+/* -------- app start -------- */
 
 app.listen({ port: PORT, host: HOST }, (err, addr) => {
   if (err) throw err;

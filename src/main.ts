@@ -36,7 +36,9 @@ app.post<{
     if (!request.params.name.match(UNAME_REGEX)) {
       reply.code(400);
       reply.send({
-        reason: 'Username malformed'
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'Username malformed'
       });
       return;
     }
@@ -52,7 +54,9 @@ app.post<{
     ) {
       reply.code(409);
       reply.send({
-        reason: 'Username unavailable'
+        statusCode: 409,
+        error: 'Conflict',
+        message: 'Username unavailable'
       });
       return;
     }
@@ -68,7 +72,7 @@ app.post<{
       }
     });
     reply.code(201);
-    reply.send({});
+    reply.send();
   }
 );
 
@@ -90,7 +94,9 @@ app.post<{
     if (user === null) {
       reply.code(404);
       reply.send({
-        reason: 'User not found or password incorrect'
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'User not found or password incorrect'
       });
       return;
     }
@@ -101,7 +107,9 @@ app.post<{
     if (!timingSafeEqual(hash, user.hash)) {
       reply.code(404);
       reply.send({
-        reason: 'User not found or password incorrect'
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'User not found or password incorrect'
       });
       return;
     }

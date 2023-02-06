@@ -9,12 +9,12 @@ export const passwordBodySchema = {
   }
 }
 
-export interface IPutPassword {
+export interface IUpdatePasswordBody {
   password: string,
   newPassword: string
 }
 
-export const putPasswordSchema = {
+export const updatePasswordBodySchema = {
   type: 'object',
   properties: {
     password: { type: 'string' },
@@ -22,6 +22,6 @@ export const putPasswordSchema = {
   }
 }
 
-export interface INameUrl {
+export interface INameUri {
   name: string
 }

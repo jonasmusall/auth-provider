@@ -27,7 +27,7 @@ if (privateJwtKey === undefined) {
 
 app.post<{
   Body: schemas.IPasswordBody,
-  Params: schemas.INameUrl
+  Params: schemas.INameUri
 }>(
   '/user/:name',
   { schema: { body: schemas.passwordBodySchema } },
@@ -74,7 +74,7 @@ app.post<{
 
 app.post<{
   Body: schemas.IPasswordBody,
-  Params: schemas.INameUrl
+  Params: schemas.INameUri
 }>(
   '/user/:name/token',
   { schema: { body: schemas.passwordBodySchema } },
@@ -119,11 +119,11 @@ app.post<{
 );
 
 app.put<{
-  Body: schemas.IPutPassword,
-  Params: schemas.INameUrl
+  Body: schemas.IUpdatePasswordBody,
+  Params: schemas.INameUri
 }>(
   '/user/:name/password',
-  { schema: { body: schemas.putPasswordSchema } },
+  { schema: { body: schemas.updatePasswordBodySchema } },
   async (request, reply) => {
     // TODO: check old password, set new one
   }

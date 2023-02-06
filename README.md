@@ -114,6 +114,36 @@ User not found or password incorrect.
 }
 ```
 
+### DELETE /user/${name}
+
+Delete a user. *Not implemented yet.*
+
+> #### Request
+>
+> ```ts
+> {
+>   password: string
+> }
+> ```
+> 
+> #### Reply
+> 
+> ##### 201 Created
+> 
+> User has been deleted. No reply body.
+> 
+> ##### 404 Not Found
+> 
+> User not found or password incorrect.
+> 
+> ```ts
+> {
+>   statusCode: 404,
+>   error: 'Not Found',
+>   message: 'User not found or password incorrect'
+> }
+> ```
+
 ### GET /publickey
 
 Retrieve the PEM encoded public RSA key used to sign all JWTs.

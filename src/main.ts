@@ -133,7 +133,51 @@ app.put<{
   '/user/:name/password',
   { schema: { body: schemas.updatePasswordBodySchema } },
   async (request, reply) => {
-    // TODO: check old password, set new one
+    // search user in database
+    const user = await db.user.findUnique({
+      where: {
+        name: request.params.name
+      }
+    });
+
+    // reply 404 if user does not exist
+    if (user === null) {
+      reply.code(404);
+      reply.send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'User not found or password incorrect'
+      });
+      return;
+    }
+
+    // calculate hash from input password and compare to stored hash
+    // reply 404 if hashes (passwords) do not match
+    const hash = getPasswordHash(request.body.password, user.salt);
+    if (!timingSafeEqual(hash, user.hash)) {
+      reply.code(404);
+      reply.send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'User not found or password incorrect'
+      });
+      return;
+    }
+
+    // user authentication successful, update password
+    const newSalt = generateSalt();
+    const newHash = getPasswordHash(request.body.newPassword, newSalt);
+    await db.user.update({
+      data: {
+        salt: newSalt,
+        hash: newHash
+      },
+      where: {
+        name: request.params.name
+      }
+    });
+    reply.code(201);
+    reply.send();
   }
 );
 

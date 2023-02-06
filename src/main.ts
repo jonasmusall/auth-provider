@@ -9,6 +9,8 @@ import * as schemas from './schemas.js';
 
 const PORT = 8889;
 const HOST = '0.0.0.0';
+const UNAME_REGEX = /^[a-z0-9]+(?:[a-z0-9_-]*[a-z0-9]+)?$/i;
+const UNAME_RESERVED_REGEX = /^(?:root|admin)$/i;
 const TOKEN_LIFETIME = 60; // in seconds
 const SALT_LENGTH = 16;
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -24,32 +26,58 @@ if (privateJwtKey === undefined) {
 }
 
 app.post<{
-  Body: schemas.IPostUser
-}>(
-  '/user',
-  { schema: { body: schemas.postUserSchema } },
-  async (request, reply) => {
-    // TODO: check name form (RegEx?), check db if name exists, reply
-  }
-);
-
-app.put<{
-  Body: schemas.IPutFirstPassword,
+  Body: schemas.IPasswordBody,
   Params: schemas.INameUrl
 }>(
-  '/user/:name/first-password',
-  { schema: { body: schemas.putFirstPasswordSchema } },
+  '/user/:name',
+  { schema: { body: schemas.passwordBodySchema } },
   async (request, reply) => {
-    // TODO: check firstPasswordToken, create user
+    // check if username is well-formed
+    if (!request.params.name.match(UNAME_REGEX)) {
+      reply.code(400);
+      reply.send({
+        reason: 'Username malformed'
+      });
+      return;
+    }
+
+    // check if username is reserved or already taken
+    if (
+      request.params.name.match(UNAME_RESERVED_REGEX) ||
+      (await db.user.count({
+        where: {
+          name: request.params.name
+        }
+      })) > 0
+    ) {
+      reply.code(409);
+      reply.send({
+        reason: 'Username unavailable'
+      });
+      return;
+    }
+
+    // username acceptable, create password hash and insert user into database
+    const salt = generateSalt();
+    const hash = getPasswordHash(request.body.password, salt);
+    await db.user.create({
+      data: {
+        name: request.params.name,
+        salt,
+        hash
+      }
+    });
+    reply.code(201);
+    reply.send({});
   }
 );
 
 app.post<{
-  Body: schemas.IGetToken,
+  Body: schemas.IPasswordBody,
   Params: schemas.INameUrl
 }>(
   '/user/:name/token',
-  { schema: { body: schemas.getTokenSchema } },
+  { schema: { body: schemas.passwordBodySchema } },
   async (request, reply) => {
     // search user in database
     const user = await db.user.findUnique({

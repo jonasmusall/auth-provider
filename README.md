@@ -4,7 +4,7 @@ Provides a REST API for user authentication with JWT.
 
 ## REST API reference
 
-### POST /user
+### POST /user/${name}
 
 Create a new user.
 
@@ -12,22 +12,15 @@ Create a new user.
 
 ```ts
 {
-  name: string
+  password: string
 }
 ```
 
 #### Reply
 
-##### 200 OK
+##### 201 Created
 
-User created. Use first password token to set a first login password. This token can only be used a single time.
-
-```ts
-{
-  firstPasswordToken: string,
-  expiresAt: number
-}
-```
+User created. No reply body.
 
 ##### 400 Bad Request
 
@@ -50,49 +43,6 @@ Username unavailable (already in use, reserved or not allowed).
   statusCode: 409,
   error: 'Conflict',
   message: 'Username unavailable'
-}
-```
-
-### PUT /user/${name}/first-password
-
-Set the first password for this user.
-
-#### Request
-
-```ts
-{
-  firstPasswordToken: string,
-  password: string
-}
-```
-
-#### Reply
-
-##### 201 Created
-
-Password has been set. No reply body.
-
-##### 404 Not Found
-
-User not found or token invalid.
-
-```ts
-{
-  statusCode: 404,
-  error: 'Not Found',
-  message: 'User not found or token invalid'
-}
-```
-
-##### 409 Conflict
-
-First password token has already been used.
-
-```ts
-{
-  statusCode: 409,
-  error: 'Conflict',
-  message: 'Token already used'
 }
 ```
 

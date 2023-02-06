@@ -1,32 +1,8 @@
-export interface IPostUser {
-  name: string
-}
-
-export const postUserSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' }
-  }
-}
-
-export interface IPutFirstPassword {
-  firstPasswordToken: string,
+export interface IPasswordBody {
   password: string
 }
 
-export const putFirstPasswordSchema = {
-  type: 'object',
-  properties: {
-    firstPasswordToken: { type: 'string' },
-    password: { type: 'string' }
-  }
-}
-
-export interface IGetToken {
-  password: string
-}
-
-export const getTokenSchema = {
+export const passwordBodySchema = {
   type: 'object',
   properties: {
     password: { type: 'string' }

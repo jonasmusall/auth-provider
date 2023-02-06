@@ -112,7 +112,7 @@ app.post<{
     }, privateJwtKey);
     reply.send({
       token: jwt,
-      expiresAt: Date.now() + TOKEN_LIFETIME,
+      expiresAt: nowSeconds() + TOKEN_LIFETIME,
       maxAge: TOKEN_LIFETIME
     });
   }
@@ -168,6 +168,10 @@ function generateSalt(): Buffer {
 
 function sha256Hash(input: Buffer): Buffer {
   return createHash('sha256').update(input).digest();
+}
+
+function nowSeconds(): number {
+  return Math.floor(Date.now() / 1000);
 }
 
 app.listen({ port: PORT, host: HOST }, (err, addr) => {

@@ -213,6 +213,10 @@ app.get('/publickey', async (request, reply) => {
   });
 });
 
+
+
+/* -------- helper functions -------- */
+
 async function getJwtKeypair(): Promise<{ privateJwtKey?: string, publicJwtKey?: string }> {
   const privateJwtKeyPath = resolve(PROJECT_ROOT, 'certs', 'jwt', 'private.pem');
   const publicJwtKeyPath = resolve(PROJECT_ROOT, 'certs', 'jwt', 'public.pem');
@@ -232,10 +236,6 @@ async function getJwtKeypair(): Promise<{ privateJwtKey?: string, publicJwtKey?:
     publicJwtKey: await readFile(publicJwtKeyPath, { encoding: 'utf8' })
   };
 }
-
-
-
-/* -------- helper functions -------- */
 
 function getPasswordHash(password: string, salt: Buffer): Buffer {
   return sha256Hash(Buffer.concat([

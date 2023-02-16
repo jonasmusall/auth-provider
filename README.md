@@ -4,7 +4,26 @@ Provides a REST API for user authentication with JWT.
 
 **ToDo**
 - Implement user deletion endpoint
-- Figure out way to containerize Prisma migrations
+
+## Docker image
+
+Build with `docker build -t auth-provider .`. You can also use the prebuild [jonasmusall/auth-provider](https://hub.docker.com/r/jonasmusall/auth-provider) image (just replace the image name `auth-provider` with `jonasmusall/auth-provider` in the following commands).
+
+To run the server using Docker, first generate the JWT keys and an empty database:
+
+`docker run --rm -v $PWD/certs:/app/package/certs -u $(id -u):$(id -g) auth-provider scripts/keygen-jwt.sh`
+
+> This creates a `certs` folder in the current directory and mounts it inside of the container running the `auth-provider` image you built. The `keygen-jwt.sh` script now generates the JWT keys and places them in that folder so they can be used later when actually running the server.
+
+`docker run --rm -v $PWD/db:/app/package/prisma/db -u $(id -u):$(id -g) auth-provider npm run prisma-deploy`
+
+> Here we tell Docker to create and mount a `db` folder and run `npm run prisma-deploy` inside of the container, invoking the Prisma CLI to create an empty database.
+
+The second command can also be used to migrate to a new version of *auth-provider* where the database schema has changed.
+
+After these setup steps, the server can be started with the following command (specify what IP and port you want it to listen to):
+
+`docker run -v $PWD/certs:/app/package/certs -v $PWD/db:/app/package/prisma/db -p [<ip>:]<port>:8889 -u $(id -u):$(id -g) --name auth-provider auth-provider`
 
 ## REST API reference
 

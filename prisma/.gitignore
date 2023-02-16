@@ -1,2 +1,2 @@
-*.db
-*.db-journal
+db/main.db
+db/main.db-journal

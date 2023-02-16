@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 # Use this script to generate an RSA keypair for signing JWTs. Run from project root directory.
 

@@ -7,11 +7,18 @@ import { fileURLToPath } from 'url';
 import { sign } from './lib/jwt.js';
 import * as schemas from './schemas.js';
 
+type Config = {
+  userNameAllowedRegEx?: string,
+  userNameReservedRegEx?: string,
+  tokenLifetime?: number
+};
+
+const CONFIG = await loadConfig();
 const PORT = 8889;
 const HOST = '0.0.0.0';
-const UNAME_REGEX = /^[a-z0-9]+(?:[a-z0-9_-]*[a-z0-9]+)?$/i;
-const UNAME_RESERVED_REGEX = /^(?:root|admin)$/i;
-const TOKEN_LIFETIME = 60; // in seconds
+const UNAME_REGEX = opt((pattern: string) => new RegExp(pattern), CONFIG.userNameAllowedRegEx) || /^[a-z0-9]+(?:[a-z0-9_-]*[a-z0-9]+)?$/i;
+const UNAME_RESERVED_REGEX = opt((pattern: string) => new RegExp(pattern), CONFIG.userNameReservedRegEx) || /^(?:root|admin)$/i;
+const TOKEN_LIFETIME = CONFIG.tokenLifetime || 60; // in seconds
 const SALT_LENGTH = 16;
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -217,6 +224,29 @@ app.get('/publickey', async (request, reply) => {
 
 /* -------- helper functions -------- */
 
+async function loadConfig(): Promise<Config> {
+  const configFilePath = resolve(PROJECT_ROOT, 'config.json');
+  let configFile: Record<string, any>;
+  try {
+    configFile = JSON.parse(await readFile(configFilePath, { encoding: 'utf8' }));
+  } catch (error: any) {
+    if ('ENOENT' != error?.code) {
+      throw error;
+    }
+    return {};
+  }
+  if (typeof configFile.userNameAllowedRegEx != 'string') {
+    configFile.userNameAllowedRegEx = undefined;
+  }
+  if (typeof configFile.userNameReservedRegEx != 'string') {
+    configFile.userNameReservedRegEx = undefined;
+  }
+  if (typeof configFile.tokenLifetime != 'number') {
+    configFile.tokenLifetime = undefined;
+  }
+  return configFile;
+}
+
 async function getJwtKeypair(): Promise<{ privateJwtKey?: string, publicJwtKey?: string }> {
   const privateJwtKeyPath = resolve(PROJECT_ROOT, 'certs', 'jwt', 'private.pem');
   const publicJwtKeyPath = resolve(PROJECT_ROOT, 'certs', 'jwt', 'public.pem');
@@ -254,6 +284,13 @@ function sha256Hash(input: Buffer): Buffer {
 
 function nowSeconds(): number {
   return Math.floor(Date.now() / 1000);
+}
+
+function opt<A, R>(f: (arg: A) => R, arg: A | null | undefined): R | undefined {
+  if (arg !== null && arg !== undefined) {
+    return f(arg);
+  }
+  return undefined;
 }
 
 

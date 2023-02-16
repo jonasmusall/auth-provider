@@ -25,6 +25,16 @@ After these setup steps, the server can be started with the following command (s
 
 `docker run -v $PWD/certs:/app/package/certs -v $PWD/db:/app/package/prisma/db -p [<ip>:]<port>:8889 -u $(id -u):$(id -g) --name auth-provider auth-provider`
 
+If you want to configure the server inside of the docker container to change parameters such as the token lifetime, mount a `config.json` file in the container by adding `-v <path to config file>:/app/package/config.json` to the flags of the command above. The `config.json` file may include the following fields:
+
+```ts
+{
+  userNameAllowedRegEx: string,
+  userNameReservedRegEx: string,
+  tokenLifetime: number // in seconds
+}
+```
+
 ## REST API reference
 
 ### POST /user/${name}
